@@ -1,1 +1,2 @@
 web: node server.js
+db-setup: mysql -h us-cdbr-iron-east-01.cleardb.net -ub08feda83cf450 -pcb911d7a < ./src/SQL/dump.sql

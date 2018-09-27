@@ -1,0 +1,43 @@
+CREATE DATABASE IF NOT EXISTS test_strw;
+USE test_strw;
+
+CREATE TABLE IF NOT EXISTS users(
+  id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(30) NOT NULL,
+  mail VARCHAR(50) NOT NULL,
+  password VARCHAR(120) NOT NULL,
+  tokens SMALLINT UNSIGNED
+) ENGINE = InnoDB;
+CREATE TABLE IF NOT EXISTS items(
+  id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(30) NOT NULL,
+  price SMALLINT UNSIGNED NOT NULL,
+  stock SMALLINT UNSIGNED
+) ENGINE = InnoDB;
+CREATE TABLE IF NOT EXISTS user_purchase(
+  id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  purchased BOOLEAN NOT NULL DEFAULT FALSE,
+  purchase_date DATE,
+  user_id SMALLINT UNSIGNED NOT NULL,
+  item_id SMALLINT UNSIGNED NOT NULL,
+  CONSTRAINT FK_user_cart FOREIGN KEY (user_id)
+  REFERENCES users(id) ON UPDATE CASCADE,
+  CONSTRAINT FK_item_cart FOREIGN KEY (item_id)
+  REFERENCES items(id) ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+SHOW COLUMNS FROM users;
+SHOW COLUMNS FROM items;
+SHOW COLUMNS FROM user_purchase;
+
+INSERT INTO users (name, mail, password)
+VALUES ("joe", "joe@berry.co", "strwbrry");
+
+INSERT INTO items (name, price, stock)
+VALUES ("pen", 4, 4);
+
+INSERT INTO user_purchase (purchased, user_id, item_id)
+VALUES (false, 1, 1);
+
+SELECT users.name, items.name FROM users, items;
+SELECT * FROM user_purchase;

@@ -8,11 +8,12 @@
   "description": "server for project strw",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js || node server.js"
+    "start": "cross-env NODE_ENV=development nodemon server.js || cross-env NODE_ENV=production node server.js"
   },
   "author": "Me",
   "license": "ISC",
   "devDependencies": {
+    "cross-env": "^5.2.0",
     "nodemon": "^1.18.4"
   },
   "dependencies": {

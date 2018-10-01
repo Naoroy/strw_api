@@ -28,6 +28,10 @@ router.get('/', (req, res) => {
   })
   .post('/login', (req, res) => {
     user.login(req.body, (error, token) => {
+      if (error) {
+        res.status(200).json({ auth: false, msg: 'user not found' })
+        return res.end()
+      }
       res.status(200).json({ auth: true, token }).end()
     })
   })

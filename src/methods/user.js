@@ -9,8 +9,9 @@ const createToken = (user) => {
   })
 }
 const findUser = (mail, callback) => {
-  user.get(mail, (error, result) => {
-    callback({ password: result.user.password })
+  user.get(mail, (error, user) => {
+    if (error) callback(true, user)
+    callback(null, user)
   })
 }
 
@@ -19,7 +20,8 @@ const user = {
     const sql = `SELECT * FROM user WHERE mail = "${ mail }"`
     db_connection.query(sql, (error, result) => {
       if (error) throw error
-      callback(null, { user: result[0] })
+      if (!result) return callback(true, 'user not found')
+      callback(null, result[0])
     })
   },
   // get(callback) {
@@ -47,10 +49,11 @@ const user = {
     })
   },
   login(login, callback) {
-    findUser(login.mail, (user) => {
-      if (!user ) return callback('errrrr', 'user ain\'t there')
-      const passwordIsValid = bcrypt.compareSync(login.password, user.password)
-      if (!passwordIsValid) return callback('errrrr', 'wrong pwd')
+    findUser(login.mail, (error, user) => {
+      if (!user) return callback('errrrr', 'user ain\'t there')
+      const passwordIsValid = 
+        bcrypt.compareSync(login.password, user.password)
+      if (!passwordIsValid) return callback(true, 'wrong pwd')
       callback(null, createToken(user))
     })
   },

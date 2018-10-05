@@ -1,8 +1,10 @@
 const express = require('express')
-const router = express.Router()
-const user = require('./src/methods/user')
 const item = require('./src/methods/item')
+const user = require('./src/methods/user')
 const verifyToken = require('./src/methods/verify-token')
+const verifyUser = require('./src/methods/verify-user')
+
+const router = express.Router()
 
 router.get('/', (req, res) => {
   res.status(200).json('OK')
@@ -16,27 +18,32 @@ router.get('/', (req, res) => {
     res.status(200).json('OK')
     res.end()
   })
-  .post('/user', (req, res) => {
-    user.post(req.body, (error, login) => {
+  .post('/user', verifyUser, (req, res) => {
+    user.post(req.body, (error, result) => {
       if (error) {
-        return res.status(422).json(error).end()
+        res.status(422).json({ errorMsg: result }).end()
+      } else {
+        user.login(result, (err, token) => {
+          res.status(200).json({
+            msg: 'User was succesfully created',
+            auth: true,
+            token,
+          }).end()
+        })
       }
-      user.login(login, (error, token) => {
-        res.status(200).json({ auth: true, token }).end()
-      })
     })
   })
   .post('/login', (req, res) => {
-    user.login(req.body, (error, token) => {
+    user.login(req.body, (error, result) => {
       if (error) {
-        res.status(200).json({ auth: false, msg: 'user not found' })
-        return res.end()
+        res.status(200).json({ auth: false, error: result }).end()
+      } else {
+        res.status(200).json({ auth: true, token: result }).end()
       }
-      res.status(200).json({ auth: true, token }).end()
     })
   })
   .get('/logout', (req, res) => {
-    res.status(200).send({ auth: false, token: null }).end();
+    res.status(200).send({ auth: false, token: null }).end()
   })
   .get('/items', (req, res) => {
     item.get((result) => {
@@ -45,13 +52,13 @@ router.get('/', (req, res) => {
     })
   })
   .post('/items', (req, res) => {
-    item.post(req.body, (result) => {
+    item.post(req.body, () => {
       res.status(200).json('OK')
       res.end()
     })
   })
   .patch('/items/:id', (req, res) => {
-    item.patch(req.body, req.params.id, (result) => {
+    item.patch(req.body, req.params.id, () => {
       res.status(200).json(`item: ${req.params.id} has been updated`)
       res.end()
     })
